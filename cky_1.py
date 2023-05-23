@@ -8,9 +8,9 @@ rules = {'a':set([S,B,X]),
          (X,B):set([R])}
 
 #nt_rules = {0: ('S','XA','AX'),1:('A','RB'),2:('B','AX'),3:('X'),4:('R','XB')}
-word = 'aaba'
+word = 'aaba' 
 
-class Dynamic_Chomsky:
+class Dynamic_CKY:
     
     def __init__(self, rules):
         self.rules = rules
@@ -42,5 +42,5 @@ class Dynamic_Chomsky:
     def combination(self, cell1, cell2):
         return list(product(self.table[cell1[0]][cell1[1]], self.table[cell2[0]][cell2[1]]))
 
-cky = Dynamic_Chomsky(rules)
+cky = Dynamic_CKY(rules)
 cky.test_word(word = word)
