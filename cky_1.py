@@ -8,7 +8,7 @@ rules = {'a':set([S,B,X]),
          (X,B):set([R])}
 
 #nt_rules = {0: ('S','XA','AX'),1:('A','RB'),2:('B','AX'),3:('X'),4:('R','XB')}
-word = 'aaba'
+word = 'aaba' 
 
 class Dynamic_Chomsky:
     
