@@ -1,7 +1,7 @@
 from itertools import product
 import nltk
 import time
-import read_input
+from read_input import convert_grammar
 
 GRAMMAR_FILE = 'grammarPLH.txt'
 WORD = 'hwshmiht'
@@ -19,11 +19,11 @@ class Node:
     
 class Dynamic_CKY:
     
-    def __init__(self, grammar_file, timing = False, prob=False):
+    def __init__(self, grammar_file, timing = False, prob=False, cnf = False):
         self.grammar = grammar_file
         self.timing = timing
         initial_time = time.time()
-        self.convert_grammar(prob) # We convert grammar file to grammar
+        self.convert_gram(prob, cnf) # We convert grammar file to grammar
         if self.timing:
             print("Time taken to convert grammar:", '{:.10f}'.format(time.time()-initial_time))
         self.amount_rules = len(self.t_rules) # Save number of rules
@@ -37,49 +37,10 @@ class Dynamic_CKY:
             # Read the contents of the file and save them as a class variable
             contents = file.read()
             return contents
-
-    def convert_grammar(self, prob):
-        ''' 
-        Converts the grammar rules into the format the class works with.
-        Args:
-            self.contents('.txt' file): grammar rules 
-        Generates:
-            encoding_dict(dictionary): Encoding used for the rules, where the key is the head of the rule and the body is the numerical encoding used.
-            self.t_rules(list): Grammar rules, considering only the ones that derive terminals. 
-            self.nt_rules(list): Grammar rules, considering only the ones that derive non-terminals.
-        '''
+        
+    def convert_gram(self, prob, cnf):
         grammar = self.read_file() #Reading the grammar file
-        # Split the grammar string into separate lines
-        grammar_lines = grammar.strip().split('\n')
-        print('input',grammar_lines)
-        #encoding the rules: each rule name will be encoded with a number from 0 to the amount of rules-1
-        self.encoding_dict, encoding = {}, 0 # Creating an empty dictionary to store the rules and initializing the encoding
-        for line in range(len(grammar_lines)):
-            self.encoding_dict[grammar_lines[line][0]] = encoding
-            self.encoding_dict[encoding] = grammar_lines[line][0]
-            encoding += 1
-        #Creating a list for each type of rule (terminal and non-terminal). The index states the head code and the content its body
-        self.t_rules, self.nt_rules = [[] for _ in range(encoding)], [[] for _ in range(encoding)]
-        if prob: #Creating the same mirrored lists for their corresponding probabilities
-            self.t_probs, self.non_t_probs =  [[] for _ in range(encoding)], [[] for _ in range(encoding)]
-        for line in grammar_lines: # Process each line of the grammar
-            head, elements = line.split(' → ') # Splitting the line into the head and elements of the rule
-            values = elements.split(' | ') # Splitting the elements using "|" as the separator, for the cases of 'OR' statements
-            for element in values: 
-                if element.isupper(): #it's a non-terminal
-                    #Creating a tuple so that 'AB' ~ ('A','B'), for future implementation use
-                    tuple_form = (self.encoding_dict[element[0]],self.encoding_dict[element[1]]) 
-                    self.nt_rules[self.encoding_dict[head]].append(tuple_form)
-                    if prob:
-                        #Appending the probability for each tuple in its corresponding place in the probability list
-                        self.non_t_probs[self.encoding_dict[head]].append(float(element[3:7]))
-                else: #is a terminal
-                    self.t_rules[self.encoding_dict[head]].append(element[0])
-                    #Appending the probability for the terminals
-                    if prob: 
-                        self.t_probs[self.encoding_dict[head]].append(float(element[2:6]))
-    
-   
+        self.t_rules, self.nt_rules = convert_grammar(grammar, cnf = cnf, prob = prob)
 
     def test_word(self, word, visual = True, prob=False):
         ''' 
@@ -226,5 +187,3 @@ class Dynamic_CKY:
 if __name__ == '__main__':
     cky = Dynamic_CKY(GRAMMAR_FILE, prob=True)
     print(cky.test_word(WORD,prob=True))
-    
-    
