@@ -188,10 +188,13 @@ def convert_grammar(grammar, cnf = True, prob=False):
                         #Appending the probability for each tuple in its corresponding place in the probability list
                         non_t_probs[encoding_dict[head]].append(float(element[3:7]))
             else: #is a terminal
-                ter_rules[encoding_dict[head]].append(element[0])
+                
                 #Appending the probability for the terminals
                 if prob: 
+                    ter_rules[encoding_dict[head]].append(element[0])
                     t_probs[encoding_dict[head]].append(float(element[2:6]))
+                else:
+                    ter_rules[encoding_dict[head]].append(element)
     if prob:
         return ter_rules, nter_rules, t_probs, non_t_probs
     else:
