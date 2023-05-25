@@ -1,10 +1,5 @@
 import string
 
-grammar = 'grammar1.txt'
-with open(grammar, 'r') as file:
-    # Read the contents of the file and save them as a class variable
-    contents = file.read()
-
 def replace_letter(bodies, letter_to_combine):
     result = []
     for body in bodies:
@@ -30,8 +25,18 @@ def replace_letter(bodies, letter_to_combine):
         result += permutations
     return result
 
-def convert_grammar(grammar, cnf = True, prob=False):
-    
+def convert_grammar(grammar, cnf = False, prob=False):
+    ''' 
+    Converts the grammar rules into the format the class works with.
+    Args:
+        grammar('.txt' file): grammar rules 
+        cnf (bool): whether the grammar needs to be normalized
+        prob (bool): whether probabilities are used
+    Generates:
+        encoding_dict(dictionary): Encoding used for the rules, where the key is the head of the rule and the body is the numerical encoding used.
+        t_rules(list): Grammar rules, considering only the ones that derive terminals. 
+        nt_rules(list): Grammar rules, considering only the ones that derive non-terminals.
+    '''
     # Split the grammar string into separate lines
     grammar_lines = grammar.strip().split('\n')
     heads, bodies = [], []
@@ -42,9 +47,6 @@ def convert_grammar(grammar, cnf = True, prob=False):
         heads.append(head)
         bodies.append(values)
 
-    print(heads)
-    print(bodies)
-    
     if cnf:
         alphabet = [letter for letter in string.ascii_uppercase if letter not in heads]
         i = 0
@@ -59,15 +61,15 @@ def convert_grammar(grammar, cnf = True, prob=False):
                 Z->x
                 '''
                 if any(char.islower() for char in current_var) and len(current_var) > 1:
-                    new_var = ''
-                    for letter in range(len(current_var)):
+                    new_var = '' #we initialize how the body will be after the transformation
+                    for letter in range(len(current_var)): #we iterate over the letters to detect the lower case one
                         if current_var[letter].islower():
                             new_letter = alphabet.pop(0)
-                            heads.append(new_letter)
-                            bodies.append([current_var[letter]])
-                            new_var += new_letter
+                            heads.append(new_letter) #we add a new rule to the head
+                            bodies.append([current_var[letter]]) # and its corresponding body
+                            new_var += new_letter #the terminal in the rule will be replaced with the non-terminal that leads to it
                         else:
-                            new_var += current_var[letter]
+                            new_var += current_var[letter] #if the letter is in upper case, add it to new var so it's still considered
                     bodies[i][element] = new_var
                 
                 current_var = bodies[i][element] #in case something has changed
@@ -200,5 +202,3 @@ def convert_grammar(grammar, cnf = True, prob=False):
     else:
         return ter_rules, nter_rules
 
-
-t_rules, nt_rules = convert_grammar(contents)
