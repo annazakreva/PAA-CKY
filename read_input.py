@@ -30,7 +30,7 @@ def replace_letter(bodies, letter_to_combine):
         result += permutations
     return result
 
-def convert_grammar(grammar, cnf = True):
+def convert_grammar(grammar, cnf = True, prob=False):
     
     # Split the grammar string into separate lines
     grammar_lines = grammar.strip().split('\n')
@@ -176,15 +176,26 @@ def convert_grammar(grammar, cnf = True):
             
     #Creating a list for each type of rule (terminal and non-terminal). The index states the head code and the content its body
     ter_rules, nter_rules = [[] for _ in range(encoding)], [[] for _ in range(encoding)]
+    if prob: #Creating the same mirrored lists for their corresponding probabilities
+            t_probs, non_t_probs =  [[] for _ in range(encoding)], [[] for _ in range(encoding)]
     for head,body in zip(heads, bodies): # Process each line of the grammar
         for element in body: 
             if element.isupper(): #it's a non-terminal
                 #Creating a tuple so that 'AB' ~ ('A','B'), for future implementation use
                 tuple_form = (encoding_dict[element[0]],encoding_dict[element[1]]) 
                 nter_rules[encoding_dict[head]].append(tuple_form)
+                if prob:
+                        #Appending the probability for each tuple in its corresponding place in the probability list
+                        non_t_probs[encoding_dict[head]].append(float(element[3:7]))
             else: #is a terminal
-                ter_rules[encoding_dict[head]].append(element)
+                ter_rules[encoding_dict[head]].append(element[0])
+                #Appending the probability for the terminals
+                if prob: 
+                    t_probs[encoding_dict[head]].append(float(element[2:6]))
+    if prob:
+        return ter_rules, nter_rules, t_probs, non_t_probs
+    else:
+        return ter_rules, nter_rules
 
-    return ter_rules, nter_rules
 
 t_rules, nt_rules = convert_grammar(contents)
